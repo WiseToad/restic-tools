@@ -2,8 +2,7 @@ The Restic Tools, an extremely tiny, but still useful wrapper scripts for [resti
 
 ## PREREQUISITES
 
-`Restic` should be installed first.  
-If you plan to configire new repositories, `pwgen` should be installed as well.
+- install `restic` and `pwgen` for repository password generation:  
 
 Debian:
 ```sh
@@ -14,17 +13,19 @@ Fedora:
 sudo dnf install -y restic pwgen
 ```
 
-TODO: add link to alerting service installation instructions
+- install [mail-alert](https://github.com/WiseToad/mail-alert) to enable email alerting on systemd task failures
 
 ## INSTALL
 
 ```sh
+mkdir -p ~/restic-tools
+cd ~/restic-tools
+
+wget https://github.com/WiseToad/restic-tools/releases/latest/download/restic-tools.tar.gz
+
 sudo mkdir -p /opt/restic-tools
-```
+sudo tar xzf restic-tools.tar.gz -C /opt/restic-tools
 
-TODO: describe deployment instructions here
-
-```sh
 sudo ln -s /opt/restic-tools/bin/restic-repo /usr/local/bin
 ```
 
@@ -89,7 +90,7 @@ sudo restic-repo {{REPO}} init
 
 ### Configure a new task
 
-Tasks are created for domains. Domain is a realm  to be backed up. It may be an app, or some part of system config. For a domain can be configured multiple tasks.
+Tasks are created for domains. Domain is a realm  to be backed up. It may be an app, or some part of system config. You can configure multiple tasks for a domain.
 
 - create domain directory:
 ```sh
@@ -104,8 +105,8 @@ Where:
 sudo mcedit {{TASK}}
 ```
 ```sh
-# code here will be sourced during task execution
-# upon execution, current directory is set to location of this script
+# this file will be sourced upon task execution
+# current directory will be changed to the location of this file
 # below is the example of some common approach:
 restic-repo {{REPO}} backup \
     --no-scan --skip-if-unchanged --group-by host,tags \
