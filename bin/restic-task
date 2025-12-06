@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+HOME_DIR="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+TASK_DIR="${HOME_DIR}/config/task"
+
+main()
+{
+    local task="$1"
+    local domain="$2"
+
+    if [ -z "${task}" ]; then
+        die "No task specified"
+    fi
+    if [ -z "${domain}" ]; then
+        die "No domain specified"
+    fi
+
+    # Load config
+    local conf_file="${HOME_DIR}/config/restic-tools.conf"
+    if [ -f "${conf_file}" ]; then
+        source "${conf_file}"
+    fi
+
+    local domain_dir="${TASK_DIR}/${domain}"
+    if [ ! -d "${domain_dir}" ]; then
+        die "No such domain found: ${domain}"
+    fi
+
+    local domain_task="${domain_dir}/${task}"
+    if [ ! -f "${domain_task}" ]; then
+        die "No task ${task} found for domain ${domain}"
+    fi
+
+    log "Starting ${task} for ${domain}"
+    (cd "${domain_dir}" && source "${domain_task}") \
+        && log "Task finished" \
+        || die "Task failed"
+}
+
+log()
+{
+    echo "$@" >&2
+}
+
+die()
+{
+    [ $# -ge 1 ] && log "$@"
+    exit 1
+}
+
+main "$@"
