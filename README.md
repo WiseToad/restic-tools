@@ -1,6 +1,8 @@
-The Restic Tools, an extremely tiny, but still useful wrapper scripts for [restic](https://restic.net/) backup program, that alongside with systemd capabilities helps me to setup complete backup system for all my hosts.
+The [Restic Tools](https://github.com/WiseToad/restic-tools), a simple, but still useful wrapper scripts for [restic](https://restic.net/) backup program, that alongside with systemd capabilities helps me to setup complete backup system for all my hosts.
 
 ## PREREQUISITES
+
+- install [mail-alert](https://github.com/WiseToad/mail-alert) to enable email alerting on systemd task failures
 
 - install `restic` and `pwgen` for repository password generation:  
 
@@ -13,7 +15,22 @@ Fedora:
 sudo dnf install -y restic pwgen
 ```
 
-- install [mail-alert](https://github.com/WiseToad/mail-alert) to enable email alerting on systemd task failures
+If the version of `restic` installed via package manager is outdated, install official binary from GitHub:
+```sh
+mkdir ~/restic
+cd ~/restic
+
+wget https://github.com/restic/restic/releases/latest/download/restic_{{VERSION}}_linux_{{ARCH}}.bz2
+```
+Where:  
+`{{VERSION}}` is the latest version of restic, e.g. `0.18.1`  
+`{{ARCH}}` is the CPU architecture of your system, e.g. `amd64`
+
+```sh
+sudo mkdir -p /opt/restic-tools/bin
+bzip2 -dck restic_{{VERSION}}_linux_{{ARCH}}.bz2 | sudo tee /opt/restic-tools/bin/restic >/dev/null
+sudo chmod 754 /opt/restic-tools/bin/restic
+```
 
 ## INSTALL
 
@@ -27,6 +44,13 @@ sudo mkdir -p /opt/restic-tools
 sudo tar xzf restic-tools.tar.gz -C /opt/restic-tools
 
 sudo ln -s /opt/restic-tools/bin/restic-repo /usr/local/bin
+```
+If `restic` was installed from GitHub instead of package manager, modify config:
+```sh
+sudo mcedit /opt/restic-tools/config/restic-tools.conf
+```
+```
+RESTIC=/opt/restic-tools/bin/restic
 ```
 
 ## CONFIGURE
@@ -45,7 +69,7 @@ AWS_SECRET_ACCESS_KEY=...
 AWS_DEFAULT_REGION=... # optional
 ```
 ```sh
-sudo chmod 600 /opt/restic-tools/config/repository/{{STORAGE}}-s3.env
+sudo chmod 640 /opt/restic-tools/config/repository/{{STORAGE}}-s3.env
 ```
 Where:  
 `{{STORAGE}}` is the name of S3 storage  
@@ -70,10 +94,11 @@ Where:
 `{{REPO}}` is the name of repository  
 `{{LOCATION}}` - possible values see here: [Preparing a new repository](https://restic.readthedocs.io/en/stable/030_preparing_a_new_repo.html)
 
-- generate password file:
+- generate password file:  
+  NOTE: If repository is shared and already initialized for another host, you should copy the key from another host to this host instead of generating a new one.
 ```sh
 pwgen -s 64 1 | sudo tee repository.key >/dev/null
-sudo chmod 600 repository.key
+sudo chmod 640 repository.key
 ```
 
 - if repository will be stored in S3, add link to it's env file:
@@ -83,7 +108,8 @@ sudo ln -s ../{{STORAGE}}-s3.env
 Where:  
 `{{STORAGE}}` is the name of S3 storage
 
-- init repository:
+- init repository:  
+  NOTE: If repository is shared and already initialized for another host, you should skip this step.
 ```sh
 sudo restic-repo {{REPO}} init
 ```
@@ -227,3 +253,8 @@ sudo restic-repo {{REPO}} command ...
 ```
 See also: [Manual](https://restic.readthedocs.io/en/stable/manual_rest.html)  
 See also: [Restic Documentation](https://restic.readthedocs.io/en/stable/)
+
+## REFERENCES
+
+- [Restic Tools](https://github.com/WiseToad/restic-tools) - This project on GitHub  
+- [restic](https://restic.net/) - Restic site
