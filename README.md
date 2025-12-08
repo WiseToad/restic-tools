@@ -29,7 +29,9 @@ Where:
 ```sh
 sudo mkdir -p /opt/restic-tools/bin
 bzip2 -dck restic_{{VERSION}}_linux_{{ARCH}}.bz2 | sudo tee /opt/restic-tools/bin/restic >/dev/null
-sudo chmod 754 /opt/restic-tools/bin/restic
+sudo chmod 755 /opt/restic-tools/bin/restic
+
+sudo ln -s /opt/restic-tools/bin/restic /usr/local/bin
 ```
 
 ## INSTALL
@@ -142,8 +144,8 @@ restic-repo {{REPO}} backup \
 ...
 ```
 Where:  
-`{{TASK}}` - task name, e.g. `backup`  
-`{{REPO}}` - name of repository, configured earlier
+`{{TASK}}` is the task name, e.g. `backup`  
+`{{REPO}}` is the name of repository, configured earlier
 
 See also: [Backing up](https://restic.readthedocs.io/en/stable/040_backup.html)  
 See also: [Manual](https://restic.readthedocs.io/en/stable/manual_rest.html)

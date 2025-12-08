@@ -18,8 +18,8 @@ main()
         source "${conf_file}"
     fi
 
-    # Load repo common env
-    local env_file="${REPO_DIR}/restic.env"
+    # Load restic env
+    local env_file="${HOME_DIR}/config/restic.env"
     if [ -f "${env_file}" ]; then
         load_env "${env_file}"
     fi
