@@ -1,0 +1,24 @@
+CONFIG_DIRS="/opt/restic-tools/config /etc/restic-tools"
+
+get_config_dir()
+{
+    for config_dir in ${CONFIG_DIRS}; do
+        if [ -d "$config_dir" ]; then
+            echo "${config_dir}"
+            return
+        fi
+    done
+
+    die "No config dir exists from the following list: ${CONFIG_DIRS}"
+}
+
+log()
+{
+    echo "$@" >&2
+}
+
+die()
+{
+    [ $# -ge 1 ] && log "$@"
+    exit 1
+}

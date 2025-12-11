@@ -15,7 +15,7 @@ Fedora:
 sudo dnf install -y restic pwgen
 ```
 
-If the version of `restic` installed via package manager is outdated, install official binary from GitHub:
+If the version of `restic` installed via package manager is outdated, install official binary from [GitHub](https://github.com/restic/restic/releases/):
 ```sh
 mkdir ~/restic
 cd ~/restic
@@ -47,13 +47,6 @@ sudo tar xzf restic-tools.tar.gz -C /opt/restic-tools
 
 sudo ln -s /opt/restic-tools/bin/restic-repo /usr/local/bin
 ```
-If `restic` was installed from GitHub instead of package manager, modify config:
-```sh
-sudo mcedit /opt/restic-tools/config/restic-tools.conf
-```
-```
-RESTIC=/opt/restic-tools/bin/restic
-```
 
 ## CONFIGURE
 
@@ -61,9 +54,15 @@ RESTIC=/opt/restic-tools/bin/restic
 
 - create an S3 backet somewhere and obtain it's access key and secret key
 
+- create directory for repository configs:
+```sh
+sudo mkdir -p /opt/restic-tools/config/repository
+cd /opt/restic-tools/config/repository
+```
+
 - create an env file for S3 storage:
 ```sh
-sudo mcedit /opt/restic-tools/config/repository/{{STORAGE}}-s3.env
+sudo mcedit {{STORAGE}}-s3.env
 ```
 ```
 AWS_ACCESS_KEY_ID=...
@@ -71,7 +70,7 @@ AWS_SECRET_ACCESS_KEY=...
 AWS_DEFAULT_REGION=... # optional
 ```
 ```sh
-sudo chmod 640 /opt/restic-tools/config/repository/{{STORAGE}}-s3.env
+sudo chmod 640 {{STORAGE}}-s3.env
 ```
 Where:  
 `{{STORAGE}}` is the name of S3 storage  
@@ -90,7 +89,7 @@ sudo mcedit repository.env
 ```
 ```
 RESTIC_REPOSITORY={{LOCATION}}
-RESTIC_PASSWORD_FILE="${REPO_DIR}/{{REPO}}/repository.key"
+RESTIC_PASSWORD_FILE="${REPO_DIR}/repository.key"
 ```
 Where:  
 `{{REPO}}` is the name of repository  
@@ -198,7 +197,8 @@ sudo systemctl start {{TASK}}-{{DOMAIN}}.timer
 sudo systemctl enable {{TASK}}-{{DOMAIN}}.timer
 ```
 
-- OR, configure another service as the trigger:
+- OR, configure another service as the trigger:  
+  TIP:  it's especially useful if you spread backup into multiple repos
 ```sh
 sudo mcedit /usr/lib/systemd/system/{{PARENT}}.service
 ```

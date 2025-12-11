@@ -1,49 +1,39 @@
 #!/usr/bin/env bash
 
-HOME_DIR="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
-REPO_DIR="${HOME_DIR}/config/repository"
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+
+source "${SCRIPT_DIR}/restic-tools"
 
 main()
 {
     local repo="$1"
-    shift
+    [ $# -gt 0 ] && shift
 
     if [ -z "${repo}" ]; then
         die "No restic repository specified"
     fi
 
-    # Load config
-    local conf_file="${HOME_DIR}/config/restic-tools.conf"
-    if [ -f "${conf_file}" ]; then
-        source "${conf_file}"
-    fi
+    local config_dir
+    config_dir=$(get_config_dir) || die
 
     # Load restic env
-    local env_file="${HOME_DIR}/config/restic.env"
+    local env_file="${config_dir}/restic.env"
     if [ -f "${env_file}" ]; then
         load_env "${env_file}"
     fi
 
     # Load specific repo env
-    load_repo_env "${repo}"
-
-    "${RESTIC}" "$@"
-}
-
-load_repo_env()
-{
-    local repo="$1"
-
-    local repo_dir="${REPO_DIR}/${repo}"
-    if [ ! -d "${repo_dir}" ]; then
+    REPO_DIR="${config_dir}/repository/${repo}"
+    if [ ! -d "${REPO_DIR}" ]; then
         die "No such repository found: ${repo}"
     fi
-
-    for env_file in "${repo_dir}"/*.env; do
+    for env_file in "${REPO_DIR}"/*.env; do
         if [ -f "$env_file" ]; then
             load_env "${env_file}"
         fi
     done
+
+    restic "$@"
 }
 
 load_env()
@@ -53,17 +43,6 @@ load_env()
     set -a
     source "${env_file}" || die
     set +a
-}
-
-log()
-{
-    echo "$@" >&2
-}
-
-die()
-{
-    [ $# -ge 1 ] && log "$@"
-    exit 1
 }
 
 main "$@"
