@@ -54,7 +54,7 @@ sudo ln -s /opt/restic-tools/bin/restic-repo /usr/local/bin
 
 - create an S3 backet somewhere and obtain it's access key and secret key
 
-- create directory for repository configs:
+- create a directory for repository configs:
 ```sh
 sudo mkdir -p /opt/restic-tools/config/repository
 cd /opt/restic-tools/config/repository
@@ -77,13 +77,13 @@ Where:
 
 ### Configure a new repository
 
-- create directory for repository configs:
+- create a directory for repository configs:
 ```sh
 sudo mkdir -p /opt/restic-tools/config/repository/{{REPO}}
 cd /opt/restic-tools/config/repository/{{REPO}}
 ```
 
-- create env file:
+- create an env file:
 ```sh
 sudo mcedit repository.env
 ```
@@ -198,7 +198,7 @@ sudo systemctl enable {{TASK}}-{{DOMAIN}}.timer
 ```
 
 - OR, configure another service as the trigger:  
-  TIP:  it's especially useful if you spread backup into multiple repos
+  TIP: It's especially useful if you spread backup across multiple repos.
 ```sh
 sudo mcedit /usr/lib/systemd/system/{{PARENT}}.service
 ```
