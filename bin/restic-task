@@ -29,10 +29,29 @@ main()
         die "No task ${task} found for domain ${domain}"
     fi
 
+    cd "${task_dir}" || die
+
+    local success_file
+    success_file="$(mktemp -t success.XXXXXXXXXX)" || die
+    export success_file
+
+    export -f log die fail
+
     log "Starting ${task} for ${domain}"
-    (cd "${task_dir}" && source "${task_file}") \
-        && log "Task finished" \
-        || die "Task failed"
+    bash "${task}" "$@" || fail
+
+    if [ ! -e "${success_file}" ]; then
+        die "Task failed"
+    fi
+
+    rm "${success_file}"
+    log "Task finished"
+}
+
+fail()
+{
+    [ $# -ge 1 ] && log "$@"
+    rm -f "${success_file}"
 }
 
 main "$@"

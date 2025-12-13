@@ -19,7 +19,7 @@ main()
     # Load restic env
     local env_file="${config_dir}/restic.env"
     if [ -f "${env_file}" ]; then
-        load_env "${env_file}"
+        load_env
     fi
 
     # Load specific repo env
@@ -29,7 +29,7 @@ main()
     fi
     for env_file in "${REPO_DIR}"/*.env; do
         if [ -f "$env_file" ]; then
-            load_env "${env_file}"
+            load_env
         fi
     done
 
@@ -38,8 +38,6 @@ main()
 
 load_env()
 {
-    local env_file="$1"
-
     set -a
     source "${env_file}" || die
     set +a

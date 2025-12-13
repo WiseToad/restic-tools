@@ -132,13 +132,30 @@ Where:
 sudo mcedit {{TASK}}
 ```
 ```sh
-# this file will be sourced upon task execution
-# current directory will be changed to the location of this file
+# this script will be executed upon task launch
+# current directory changed to the location of this script
+
+# you may use the following helper commands:
+# log "message" - issue a message to stderr
+# die ["message"] - break execution with optional message
+# fail ["message"] - mark task as failed and continue execution
+
 # below is the example of some common approach:
-restic-repo {{REPO}} backup \
-    --no-scan --skip-if-unchanged --group-by host,tags \
-    --tag files ... \
-|| die
+
+# simple step
+log "Backing up ..."
+restic-repo {{REPO}} backup --tag files \
+    --no-scan --group-by host,tags \
+    ... \
+|| fail
+
+# complex step
+log "Backing up ..."
+(
+    some-prepare-step || die # on error this breaks subshell only (the code between parentheses)
+    restic-repo ... || fail
+    some-cleanup-step
+) || fail
 
 ...
 ```
